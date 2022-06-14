@@ -2,8 +2,6 @@ package com.github.ismail2ov.mutationtestingkata.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -40,9 +38,9 @@ class BasketServiceTest {
     void return_basket_by_id() {
         when(basketRepository.getByUserId(USER_ID)).thenReturn(Optional.of(EXPECTED_BASKET));
 
-        basketService.getBy(USER_ID);
+        Basket actualBasket = basketService.getBy(USER_ID);
 
-        verify(basketRepository).getByUserId(any());
+        assertThat(actualBasket).isEqualTo(EXPECTED_BASKET);
     }
 
     @Test
@@ -59,7 +57,9 @@ class BasketServiceTest {
         when(basketRepository.getByUserId(USER_ID)).thenReturn(Optional.of(EXPECTED_BASKET));
         when(basketRepository.save(EXPECTED_BASKET)).thenReturn(EXPECTED_BASKET);
 
-        basketService.addProductToBasket(USER_ID, PRODUCT);
+        Basket actualBasket = basketService.addProductToBasket(USER_ID, PRODUCT);
+
+        assertThat(actualBasket).isEqualTo(EXPECTED_BASKET);
     }
 
     @Test
@@ -68,6 +68,8 @@ class BasketServiceTest {
         when(basketRepository.getByUserId(USER_ID)).thenReturn(Optional.empty());
         when(basketRepository.save(expectedBasket)).thenReturn(expectedBasket);
 
-        basketService.addProductToBasket(USER_ID, PRODUCT);
+        Basket actualBasket = basketService.addProductToBasket(USER_ID, PRODUCT);
+
+        assertThat(actualBasket).isEqualTo(expectedBasket);
     }
 }
