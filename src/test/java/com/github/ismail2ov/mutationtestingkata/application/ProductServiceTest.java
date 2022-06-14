@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 
 import com.github.ismail2ov.mutationtestingkata.domain.Product;
 import com.github.ismail2ov.mutationtestingkata.domain.ProductNotFoundException;
@@ -30,27 +29,37 @@ class ProductServiceTest {
     @Mock
     ProductRepository productRepository;
 
-    @Spy
     @InjectMocks
     ProductService productService;
 
     @Test
     void return_all_products() {
         List<Product> expectedProductsList = List.of(PRODUCT_1, PRODUCT_2);
-        when(productService.getAllProducts()).thenReturn(expectedProductsList);
+        when(productRepository.findAll()).thenReturn(expectedProductsList);
 
         List<Product> actualProductsList = productService.getAllProducts();
 
-        assertThat(actualProductsList).isInstanceOf(List.class);
+        assertThat(actualProductsList).isEqualTo(expectedProductsList);
+
     }
 
     @Test
     void return_product_by_id() {
+        ProductPageDTO expected = new ProductPageDTO(PRODUCT_1, List.of(PRODUCT_2));
         when(productRepository.findById(PRODUCT_ID)).thenReturn(Optional.of(PRODUCT_1));
         when(productRepository.getCrossSellProducts(PRODUCT_ID)).thenReturn(List.of(PRODUCT_2));
 
         ProductPageDTO actual = productService.getProductBy(PRODUCT_ID);
 
-        assertThat(actual).isNotNull();
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void throw_exception_when_product_does_not_exists() {
+        when(productRepository.findById(PRODUCT_ID)).thenThrow(ProductNotFoundException.class);
+
+        Throwable thrown = catchThrowable(() -> productService.getProductBy(PRODUCT_ID));
+
+        AssertionsForClassTypes.assertThat(thrown).isInstanceOf(ProductNotFoundException.class);
     }
 }
